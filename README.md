@@ -1,98 +1,74 @@
-# How to create github packages
+# @casual/vesting-offchain
 
-https://docs.github.com/en/packages/quickstart
+Sistema de vesting sin comisiones ni custodios, basado en Cardano.
 
-# Use tsup to bundle typescript
+> 🧩 Este proyecto parte del excelente trabajo realizado por el equipo de [Anastasia Labs](https://github.com/Anastasia-Labs), a quienes agradecemos por compartir su SDK original como base.  
+> Esta versión ha sido adaptada para eliminar comisiones, dependencias cerradas y cualquier forma de control externo.
 
-https://tsup.egoist.dev/
+---
 
-# How to release
+## 🎯 Objetivo
 
-https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository#creating-a-release
+Ofrecer una implementación limpia, segura y reutilizable de un contrato de vesting para tokens en Cardano, usando Plutus V2 y Lucid, que garantice:
 
-# Installation
+- 0% de comisiones
+- 100% de control por parte de los beneficiarios
+- 0% de dependencia en servicios o wallets externas
 
-## Create `.npmrc` file, replace TOKEN with your personal access token.
+---
 
-```
-@anastasia-labs:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=TOKEN
-```
+## 🚀 Características principales
 
-## Install package
+| Elemento                      | Estado                                |
+|------------------------------|----------------------------------------|
+| **Comisiones**               | ❌ Ninguna (`PROTOCOL_FEE = 0`)         |
+| **Pagos a terceros**         | ❌ Eliminados                           |
+| **Llaves del protocolo**     | ❌ Eliminadas                           |
+| **Custodios**                | ❌ No existen                           |
+| **Contrato**                 | ✅ Inmutable (`linearVesting.plutus`)   |
+| **Beneficiarios**            | ✅ Controlan y redimen desde CLI o nodo |
+| **Stack técnico**            | ✅ [`lucid-cardano`](https://github.com/spacebudz/lucid), TypeScript |
 
-```
-npm install @anastasia-labs/linear-vesting-offchain
-```
+---
 
-or
+## 🧱 Estructura del SDK
 
-```
-pnpm install @anastasia-labs/linear-vesting-offchain
-```
+- `src/core/constants.ts`: configuración global (tiempos, fee = 0, tolerancia)
+- `src/core/contract.types.ts`: definiciones de datum y redeemer
+- `src/endpoints/lockVestingTokens.ts`: bloqueo de tokens en contrato
+- `src/endpoints/collectVestingTokens.ts`: redención de tokens por mes
+- `src/core/utils/*.ts`: utilidades matemáticas y de parsing
+- `linearVesting.plutus`: validador compilado en CBOR
+- `script.addr`, `validator.hash`: dirección y hash del contrato
 
-## References
+---
 
-- Add GitHub Packages
+## 🔐 Seguridad
 
-  - https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#installing-a-package
+Esta versión está diseñada para eliminar todo punto de control externo o riesgo de captura:
 
-- Authenticate with personal access token
-  - https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#authenticating-with-a-personal-access-token
+1. **Contrato compilado una sola vez**:  
+   El hash (`validator.hash`) y la dirección del script (`script.addr`) deben permanecer constantes durante los 36 meses de vesting.
 
-# Semantic versioning
+2. **Recompilar cambia el hash**, lo que:
+   - Invalida los depósitos ya hechos.
+   - Puede dejar fondos bloqueados si se usa otro archivo `.plutus`.
 
-https://semver.org/
+3. **No existen pagos automáticos a terceros**:
+   - `PROTOCOL_FEE = 0`
+   - Las claves del protocolo (`PROTOCOL_PAYMENT_KEY`, `STAKE_KEY`) han sido eliminadas del código.
 
-# Workflow to create a new Github package release
+4. **Cada beneficiario controla su flujo**:
+   - Usa `cardano-cli`, Lucid o scripts locales.
+   - No depende de páginas web, extensiones o dapps externas.
 
-Here's a step-by-step guide to create a new Github package release:
+---
 
-- Update the code.
-- Commit the changes.
-- Push the changes to the develop branch Github repository.
-- Check if the Continuous Integration (CI) passes. If it does, proceed to the next step. If not, address the issues before proceeding further.
-- Bump the library version based on the extent of the changes made. Here are the three options to do so:
-  - For a small bug fix, run:
-  ```
-  pnpm version patch
-  ```
-  - For adding new functionality in a backward-compatible way, run:
-  ```
-  pnpm version minor
-  ```
-  - For making breaking changes to the code, run:
-  ```
-  pnpm version major
-  ```
-- After bumping the version, go to the Github project's releases page
-- Create a new tag with the bumped version number.
-- To create a new npm package in the github organization, make sure the Node.js package CI succeeds.
-- If the CI Action fails, remove the release, tag, and commit the new changes. Then, push the changes and draft a new release.
+## 🛠️ Instalación
 
-# Local Build
+```bash
+# Instala dependencias
+npm install
 
-In the main directory
-
-```
-pnpm run build
-```
-# Test framework
-
-https://github.com/vitest-dev/vitest
-
-
-# Running Tests
-
-```sh
-pnpm test
-```
-
-![linear-vesting-offchain](/assets/gifs/linear-vesting-offchain.gif)
-
-# Installing sdk pacakage in local test folder
-
-```
-cd test
-pnpm run test
-```
+# Compila el SDK
+npm run build
