@@ -1,6 +1,6 @@
-import { Address, LucidEvolution, toUnit } from "@lucid-evolution/lucid";
+import { Address, Lucid, toUnit } from "lucid-cardano";
 import { VestingDatum } from "../contract.types.js";
-import { CborHex, ReadableUTxO } from "../types.js";
+import type { CborHex, ReadableUTxO } from "../types.js";
 import { divCeil, parseUTxOsAtScript, toAddress } from "./utils.js";
 
 export function checkVestingUtxo(
@@ -40,7 +40,7 @@ export function checkVestingUtxo(
 }
 
 export async function getVestingByAddress(
-  lucid: LucidEvolution,
+  lucid: Lucid,
   address: Address,
   script: CborHex
 ) {
