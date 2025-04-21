@@ -12,3 +12,4 @@ export const PROTOCOL_FEE = 0;
 // ❌ Eliminado: no hay claves de cobro ni control externo
 // export const PROTOCOL_PAYMENT_KEY = "…"
 // export const PROTOCOL_STAKE_KEY = "…"
+ 
